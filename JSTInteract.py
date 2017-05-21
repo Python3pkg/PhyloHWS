@@ -1,5 +1,5 @@
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import davlib
 import os
 import xml.etree.ElementTree as ET
@@ -16,19 +16,19 @@ def getInfo(MethodNumber=None):
     Info are stored on biodiversitycatalogue
     """
     if not MethodNumber:
-        A= urllib.urlopen("https://www.biodiversitycatalogue.org/rest_services/23.xml")
+        A= urllib.request.urlopen("https://www.biodiversitycatalogue.org/rest_services/23.xml")
         Response=A.read()
         Element = ET.fromstring(Response)
         ElementA=Element.findall("./{http://www.biocatalogue.org/2009/xml/rest}resources/{http://www.biocatalogue.org/2009/xml/rest}restResource")
         Info=[]
         for x in  ElementA:
             url=x.attrib["{http://www.w3.org/1999/xlink}href"]
-            A=urllib.urlopen(url+".json").read()
+            A=urllib.request.urlopen(url+".json").read()
             Info.append(json.loads(A)['rest_resource'])
     elif MethodNumber:
         url="https://www.biodiversitycatalogue.org/rest_methods/"+MethodNumber+"/inputs"
-        Inputspec=json.loads(urllib.urlopen(url+".json").read())
-        Info=Inputspec[u'rest_method']
+        Inputspec=json.loads(urllib.request.urlopen(url+".json").read())
+        Info=Inputspec['rest_method']
     return Info
 
 
@@ -78,7 +78,7 @@ def submitJST(arguments={},name="",session="",mail=""):
     MAIL="mail="+mail
     Session="session="+session
     URL="&".join([base,NAME,ARG,MAIL,Session])
-    A= urllib.urlopen(URL)
+    A= urllib.request.urlopen(URL)
     response=A.read()
     #Parse the result
     Element = ET.fromstring(response)
@@ -93,7 +93,7 @@ def UploadAndSubmitJST(arguments,name,session,mail):
      """
      FILES=[]
      first=True
-     for key,value in arguments.items():
+     for key,value in list(arguments.items()):
          if "read" in dir(value):
             if first:
                 MakeDirectory(session)
@@ -111,7 +111,7 @@ def retrive(IdJob):
     base=" http://alicegrid17.ba.infn.it:8080/INFN.Grid.RestFrontEnd/services/QueryJob/SelectJob?"
     jobid="IdJob={"+IdJob+"}"
     #Perform the call
-    A= urllib2.urlopen(base+jobid)
+    A= urllib.request.urlopen(base+jobid)
     response=A.read()
     #Parse the result
     ElementR = ET.fromstring(response)
